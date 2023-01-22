@@ -1,3 +1,7 @@
+body {
+    background-color: black;
+}
+
 li {
     list-style: none;
     padding-bottom: 10px;
