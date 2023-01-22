@@ -1,116 +1,84 @@
-var items = [
-    {
-        checked : true,
-        message : "this is me",
-        id: 0
-    },
-    {
-        checked : true,
-        message : "this is Tim",
-        id: 1
-    },
-    {
-        checked : false,
-        message : "this is Ouss",
-        id: 2
-    }
-];
+var defaultItems = localStorage.getItem("list") ? JSON.parse(localStorage.getItem("list")) : [];
+
+var items = [];
 
 let list = document.createElement("ul");
 
-function increment(array) {
+function createOneItem(input, checked) {
+    let newItem = document.createElement('li');
 
-    for(let i = 0; i < array.length; i++) {
+    let id = items.length > 0 ? items[items.length - 1].id + 1 : 0;
 
-        let item = document.createElement('li');
+    let checkbox = document.createElement("input");
+    checkbox.setAttribute("type", "checkbox");
+    checkbox.checked = checked;
+    newItem.appendChild(checkbox);
 
-        let checkbox = document.createElement("input");
-        checkbox.setAttribute("type", "checkbox");
-        checkbox.checked = array[i].checked;
-        item.appendChild(checkbox);
-
-        checkbox.addEventListener("change", function() {
-            array[i].checked = !items[i].checked;
-        });
-
-        let label = document.createElement("input");
-        label.value = array[i].message;
-        item.appendChild(label);
-
-        label.addEventListener("change", function() {
-            array[i].message = label.value;
-        });
-
-        let deleteButton = document.createElement("button");
-        deleteButton.innerHTML = "x"
-        item.appendChild(deleteButton);
-
-        deleteButton.addEventListener("click", function() {
-            item.remove();
-            const findCorrectId = function(element) {
-                return element.id === items[i].id;
+    checkbox.addEventListener("change", function() {
+        for(let i = 0; i < items.length; i++) {
+            if(items[i].id === id) {
+                items[i].checked = !items[i].checked;
+                localStorage.setItem("list", JSON.stringify(items));
             }
-            array.splice(items.findIndex(findCorrectId), 1);
-              
-        });
+        }
+    });
 
-        list.appendChild(item);
+    let label = document.createElement("input");
+    label.value = input;
+    newItem.appendChild(label);
 
+    label.addEventListener("change", function() {
+        for(let i = 0; i < items.length; i++) {
+            if(items[i].id === id) {
+                items[i].message = label.value;
+                localStorage.setItem("list", JSON.stringify(items));
+            }
+        }
+    });
+
+    let deleteButton = document.createElement("button");
+    deleteButton.innerHTML = "x";
+    newItem.appendChild(deleteButton);
+
+    deleteButton.addEventListener("click", function() {
+        newItem.remove();
+        for(let i = 0; i < items.length; i++) {
+            if(items[i].id === id) {
+                items.splice(i, 1)
+                localStorage.setItem("list", JSON.stringify(items));
+            }
+        }
+    });
+
+    items.push({
+        checked: checked,
+        message: input,
+        id: id
+    });
+    localStorage.setItem("list", JSON.stringify(items));
+
+    list.appendChild(newItem);
+    return newItem;
+}
+
+function stateItems(array) {
+    for(let i = 0; i < array.length; i++) {
+        createOneItem(array[i].message, array[i].checked);
     }
-
     return list
 }
 
 document.body.append(list)
 
-function addItems() {
+function setUpAddButton() {
 
     let submitBtn = document.getElementById('submit-btn');
     let mainInput = document.getElementById('input');
 
     submitBtn.addEventListener("click", function() {
-
-        let item = document.createElement('li');
-
-        let checkbox = document.createElement("input");
-        checkbox.setAttribute("type", "checkbox");
-        item.appendChild(checkbox);
-
-        checkbox.addEventListener("change", function() {
-            items[i].checked = !items[i].checked;
-        });
-
-        let label = document.createElement("input");
-        label.value = mainInput.value;
-        item.appendChild(label);
-
-        label.addEventListener("change", function() {
-            items[i].message = label.value;
-        });
-
-        let deleteButton = document.createElement("button");
-        deleteButton.innerHTML = "x"
-        item.appendChild(deleteButton);
-
-        deleteButton.addEventListener("click", function() {
-            item.remove();
-            const findCorrectId = function(element) {
-                return element.id === items[i].id;
-            }
-            items.splice(items.findIndex(findCorrectId), 1);
-              
-        });
-
-        list.appendChild(item);
-
-        items.push({
-            checked: false,
-            message: mainInput.value,
-            id: items.length > 0 ? items[items.length - 1].id +1 : 0
-        });
+        createOneItem(mainInput.value, false);
     });
-    return list
 }
 
-console.log(increment(items));
-console.log(addItems());
+console.log(stateItems(defaultItems));
+console.log(setUpAddButton());
